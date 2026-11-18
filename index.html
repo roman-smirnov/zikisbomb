@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17242d">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <title>Ziki’s Bomb</title>
+</head>
+<body>
+  <main class="stage">
+    <div class="world" id="world" data-graphics="loading">
+      <div class="terrain" aria-hidden="true">
+        <div class="garden-still"></div>
+        <canvas id="scene"></canvas>
+      </div>
+      <div id="scene-focus" aria-hidden="true"></div>
+      <div class="utilities" role="group" aria-label="Game controls">
+        <button id="sound" type="button" aria-pressed="false"><span aria-hidden="true">♫</span> <span id="sound-label">Sound off</span></button>
+        <button id="fullscreen" type="button" aria-label="Fullscreen" title="Fullscreen"><span aria-hidden="true">⛶</span></button>
+        <button id="pause" type="button" hidden>Pause</button>
+        <button id="teacher" type="button" aria-haspopup="dialog">Teacher controls</button>
+      </div>
+    </div>
+
+    <section class="console" aria-labelledby="game-title">
+      <header class="console-header">
+        <h1 id="game-title">Ziki’s Bomb</h1>
+        <div class="clock" id="clock" hidden>
+          <span class="sr-only">Time remaining</span>
+          <span id="time" role="timer" aria-live="off">01:00</span>
+        </div>
+      </header>
+
+      <section class="panel" id="ready" aria-label="Round setup">
+        <p class="setup-intro">Predict what a C# expression prints before time runs out.</p>
+        <div class="setup-row">
+          <label>Topic <select id="topic"></select></label>
+          <button class="primary" id="start" type="button"><span aria-hidden="true">▶</span> Start round</button>
+        </div>
+      </section>
+
+      <section id="round" hidden>
+        <div class="code-panel">
+          <h2><span aria-hidden="true">&lt;/&gt;</span> What will this code print?</h2>
+          <pre dir="ltr"><code id="challenge"></code></pre>
+        </div>
+
+        <form id="answer-form" novalidate>
+          <label for="answer">Answer</label>
+          <div class="answer-row">
+            <input id="answer" type="text" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="feedback">
+            <button class="primary" id="submit" type="submit">Submit</button>
+          </div>
+          <div class="touch-keys" aria-label="Answer keys" role="group">
+            <button type="button" data-key="-" aria-label="Enter minus">−</button>
+            <button type="button" data-key="." aria-label="Enter decimal point">.</button>
+          </div>
+          <p class="feedback" id="feedback" hidden></p>
+        </form>
+
+        <div class="round-pause" id="paused" hidden>
+          <p>Round paused</p>
+          <button class="primary" id="resume" type="button">Resume</button>
+        </div>
+
+        <section class="result" id="result" aria-labelledby="result-title" hidden>
+          <h2 id="result-title" tabindex="-1"></h2>
+          <div class="solution" id="solution" hidden></div>
+          <div class="result-actions">
+            <button id="reveal" type="button">Show solution</button>
+            <button class="primary" id="next" type="button">Next round</button>
+            <button id="end" type="button">End round</button>
+          </div>
+        </section>
+      </section>
+      <p class="feedback" id="notice" hidden></p>
+    </section>
+  </main>
+
+  <dialog id="teacher-dialog" aria-labelledby="teacher-title">
+    <form method="dialog" class="dialog-header">
+      <h2 id="teacher-title">Teacher controls</h2>
+      <button type="submit" autofocus>Close</button>
+    </form>
+    <label class="volume">Volume <input type="range" id="volume" min="0" max="1" step=".05" value=".35"></label>
+    <p class="teacher-note">Pause the round while the class discusses an answer. After each round, use Show solution to review the expression together.</p>
+    <dl class="shortcuts">
+      <dt>Enter</dt><dd>Start, resume, or submit</dd>
+      <dt>Shift P</dt><dd>Pause or resume</dd>
+      <dt>F / M / T</dt><dd>Fullscreen, sound, or teacher controls</dd>
+      <dt>R / Shift R</dt><dd>Show solution or start the next round</dd>
+    </dl>
+    <button type="button" id="teacher-end">End round</button>
+  </dialog>
+  <p id="announcement" class="sr-only" role="status"></p>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

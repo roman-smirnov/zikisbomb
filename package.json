@@ -1,0 +1,31 @@
+{
+  "name": "zikisbomb",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "build": "npm run typecheck && vite build && node tools/notices.mjs",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "playwright test",
+    "validate:asset": "node tools/validate-asset.mjs",
+    "test:oracle": "node tools/verify-puzzles.mjs"
+  },
+  "dependencies": {
+    "@babylonjs/core": "9.27.1",
+    "@babylonjs/loaders": "9.27.1",
+    "@fontsource/jetbrains-mono": "5.2.8",
+    "@fontsource/nunito": "5.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "gltf-validator": "2.0.0-dev.3.10",
+    "typescript": "5.9.3",
+    "vite": "8.3.5"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}
