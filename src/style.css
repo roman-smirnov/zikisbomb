@@ -90,7 +90,7 @@ button{font-size:20px;padding:16px 24px}
   color: #fffaf0;
   text-shadow: 0 2px 18px #233a31a0, 0 2px 4px #233a3166;
 }
-.title-card h1 { font-size: clamp(63px, 6.6vw, 135px); }
+.title-card h1 { font-size: clamp(55px, 5.9vw, 115px); text-wrap: balance; }
 .title-card .subtitle { color: #fff4d9; }
 button, #teacher-menu label, .menu-top .eyebrow { font-family: Nunito, sans-serif; font-weight: 800; }
 button { border-radius: 8px; }

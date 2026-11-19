@@ -1,6 +1,6 @@
 <div align="center">
 
-# ZIKI’S BOMB
+# Defuse the Bomb
 
 **One minute. One C# expression. Defuse the device.**
 
@@ -8,7 +8,7 @@ A Grade 10 classroom coding challenge adapted from C# Bomb (revision `b502932c41
 
 </div>
 
-![ZIKI’S BOMB title screen with the 3D device on a garden bench](docs/images/title.jpg)
+![Defuse the Bomb title screen with the 3D device on a garden bench](docs/images/title.jpg)
 
 <p align="center">
   <a href="docs/images/gameplay.jpg"><img src="docs/images/gameplay.jpg" width="48%" alt="A timed C# Math puzzle beside the red countdown"></a>

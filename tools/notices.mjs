@@ -7,7 +7,7 @@ const packages = [
   ['@fontsource/nunito', ['LICENSE']],
   ['@fontsource/jetbrains-mono', ['LICENSE']],
 ];
-const texts = ['Ziki’s Bomb — third-party runtime notices'];
+const texts = ['Defuse the Bomb — third-party runtime notices'];
 for (const [name, filenames] of packages) {
   const folder = new URL(`../node_modules/${name}/`, import.meta.url);
   const { version } = JSON.parse(await readFile(new URL('package.json', folder), 'utf8'));

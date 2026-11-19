@@ -78,7 +78,7 @@ function revealPuzzle(puzzle: Puzzle) {
   const card = $('reveal-card');
   if (card.childElementCount) return;
   card.innerHTML = [
-    '<div class="eyebrow">ZIKI’S BOMB // DEBRIEF</div>',
+    '<div class="eyebrow">DEFUSE THE BOMB // DEBRIEF</div>',
     '<pre class="solution-code"><code id="reveal-code"></code></pre>',
     '<h2 id="reveal-output"></h2>',
     '<p class="reveal-prompt">WHY?</p>',
