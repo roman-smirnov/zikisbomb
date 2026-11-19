@@ -17,8 +17,8 @@ try {
 `);
   const examples = [
     ...puzzles,
-    { id: 'Midpoint 1', expression: 'Math.Round(2.5)', displayAnswer: '2' },
-    { id: 'Midpoint 2', expression: 'Math.Round(3.5)', displayAnswer: '4' },
+    { id: 'Midpoint 1', code: 'Console.WriteLine(Math.Round(2.5));', displayAnswer: '2' },
+    { id: 'Midpoint 2', code: 'Console.WriteLine(Math.Round(3.5));', displayAnswer: '4' },
   ];
   await writeFile(join(folder, 'Program.cs'), `using System;
 using System.Globalization;
@@ -39,8 +39,8 @@ void Verify(string name, string expected, Action print)
     Console.WriteLine($"{name} prints {actual}");
 }
 
-${examples.map(({ id, expression, displayAnswer }) =>
-    `Verify("${id}", "${displayAnswer}", () => Console.WriteLine(${expression}));`).join('\n')}
+${examples.map(({ id, code, displayAnswer }) =>
+    `Verify("${id}", "${displayAnswer}", () => {\n    ${code.replaceAll('\n', '\n    ')}\n});`).join('\n')}
 `);
   const command = spawnSync('dotnet', ['run', '--project', project], {
     env: { ...process.env, DOTNET_CLI_HOME: folder, DOTNET_NOLOGO: '1', DOTNET_CLI_TELEMETRY_OPTOUT: '1' },

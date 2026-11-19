@@ -1,7 +1,17 @@
+# Installed dependencies and generated output
 node_modules/
 dist/
 test-results/
 playwright-report/
-.DS_Store
+coverage/
 *.log
+*.tsbuildinfo
 __pycache__/
+*.py[cod]
+
+# Local configuration and operating-system files
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db

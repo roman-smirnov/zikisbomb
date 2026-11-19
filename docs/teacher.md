@@ -1,21 +1,11 @@
 # Classroom quick start
 
-Load the ready screen before introducing the activity. Tell the story aloud while the class can see the garden. Choose a single method for targeted practice or **Mixed** for all 16 questions. Press **Start round** when the class is ready to calculate.
+Open the title screen before introducing the activity. Tell the story aloud, then press **Start game**. The original arming cue plays before the timed question. The class has 60 seconds to evaluate three Math calls and predict the output. The first line assigns the result to a variable. The second line prints it.
 
-The prompt assumes `System` is in scope. Students enter the numeric value printed by `Console.WriteLine`. A decimal comma or point is accepted, and `4.7` and `4.70` are equivalent. An unfinished input such as a lone minus prompts for a number, and a complete wrong number costs 10 seconds.
+Enter a number using the keyboard or numpad and submit with **Enter**. Use a decimal point for fractional values. For example, `4.7` and `4.70` are equivalent. A wrong number costs ten seconds. An incomplete entry leaves the timer to run normally.
 
-Pause to discuss a question without using class time. Opening Teacher controls pauses a running round. Close the panel and press **Resume** to continue. Switching tabs leaves the countdown running. Sound starts off on a first visit and remembers your choice.
+Use **Pause** or **Shift P** for discussion. Opening **Teacher controls** also pauses the round. Close the panel and use **Resume game** to continue. Use **Show answer** after a failed round to reveal the two statements, printed value, and worked explanation. **Restart game** draws a different question.
 
-| Shortcut | Action |
-| --- | --- |
-| Enter | Start, resume, or submit the answer |
-| Shift P | Pause or resume |
-| T | Open Teacher controls |
-| F | Toggle fullscreen |
-| M | Toggle sound |
-| R | Show solution after the round |
-| Shift R | Start the next round after an outcome |
+The pool covers `Abs`, `Round`, `Min`, `Max`, `Pow`, and `Sqrt`. In a rounding discussion, use `Math.Round(2.5)` → 2 and `Math.Round(3.5)` → 4 to demonstrate midpoint-to-even. The timed questions use non-midpoint rounding examples.
 
-After a round, show the solution and ask students which operation happens first. For a rounding discussion, compare `Math.Round(2.5)` → 2 with `Math.Round(3.5)` → 4. .NET’s default rounds exact midpoints to the nearest even integer. `Round` in the displayed examples, `Pow`, and `Sqrt` return a `double`.
-
-Before class, rehearse fullscreen, answer entry, and readability from the back of the room on the actual projector.
+The bank includes eight arithmetic-first puzzles, five with a `Math` method applied to a calculation, and three that nest all the calls. In the arithmetic rounds, ask students to substitute the values returned by the calls, then apply operator precedence. Compare the integer-division round, where 7 ÷ 2 gives 3, with the round where `Math.Sqrt(9) / Math.Abs(2)` gives 1.5 because `Math.Sqrt` returns a `double`.

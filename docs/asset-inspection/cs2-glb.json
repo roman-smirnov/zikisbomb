@@ -1,0 +1,990 @@
+{
+  "fileBytes": 44077888,
+  "nodes": [
+    {
+      "name": "weapon_hand_r",
+      "rotation": [
+        -8.557065278580467e-09,
+        -6.196660962132228e-10,
+        2.3603217869094806e-07,
+        1
+      ],
+      "translation": [
+        -3,
+        -4,
+        -2.9309874297576977e-14
+      ]
+    },
+    {
+      "name": "neutral_bone",
+      "rotation": [
+        -0.7071067690849304,
+        0,
+        0,
+        0.7071067690849304
+      ]
+    },
+    {
+      "mesh": 0,
+      "name": "weapons/models/c4/weapon_c4.vmdl_c.body_hd",
+      "skin": 0
+    },
+    {
+      "mesh": 1,
+      "name": "weapons/models/c4/weapon_c4.vmdl_c.controlpanel0",
+      "skin": 0
+    },
+    {
+      "children": [
+        2,
+        3,
+        0,
+        1
+      ],
+      "name": "weapons/models/c4/weapon_c4.vmdl_c",
+      "rotation": [
+        -0.5,
+        -0.5,
+        -0.5000000596046448,
+        0.5000001192092896
+      ],
+      "scale": [
+        0.02539999969303608,
+        0.02539999969303608,
+        0.02539999969303608
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "extensions": {
+        "KHR_materials_specular": {
+          "specularColorFactor": [
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "name": "weapon_c4",
+      "normalTexture": {
+        "index": 0
+      },
+      "occlusionTexture": {
+        "index": 1
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 2
+        },
+        "metallicRoughnessTexture": {
+          "index": 1
+        }
+      }
+    },
+    {
+      "alphaMode": "BLEND",
+      "extensions": {
+        "KHR_materials_specular": {
+          "specularColorFactor": [
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "name": "c4_panorama_control_panel",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 3
+        },
+        "metallicFactor": 0
+      }
+    }
+  ],
+  "skins": [
+    {
+      "inverseBindMatrices": 6,
+      "joints": [
+        0,
+        1
+      ],
+      "name": "weapons/models/c4/weapon_c4.vmdl_c"
+    }
+  ],
+  "meshes": [
+    {
+      "name": "weapons/models/c4/weapon_c4.vmdl_c.body_hd",
+      "primitives": [
+        {
+          "vertices": 14371,
+          "triangles": 17937,
+          "material": 0,
+          "attributes": [
+            "POSITION",
+            "NORMAL",
+            "TEXCOORD_0",
+            "JOINTS_0",
+            "WEIGHTS_0"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "weapons/models/c4/weapon_c4.vmdl_c.controlpanel0",
+      "primitives": [
+        {
+          "vertices": 24,
+          "triangles": 12,
+          "material": 1,
+          "attributes": [
+            "POSITION",
+            "NORMAL",
+            "TEXCOORD_0",
+            "JOINTS_0",
+            "WEIGHTS_0"
+          ]
+        }
+      ]
+    }
+  ],
+  "images": [
+    {
+      "name": "c4_normal_tga_4e48d437",
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "bytes": 16690578
+    },
+    {
+      "name": "c4_ao_tga_bb64a00d_orm_556045838",
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "bytes": 13064359
+    },
+    {
+      "name": "c4_color_psd_75da6dec",
+      "dimensions": [
+        4096,
+        4096
+      ],
+      "bytes": 13340838
+    },
+    {
+      "name": "testgrid_color_tga_6cdaf30d",
+      "dimensions": [
+        512,
+        512
+      ],
+      "bytes": 13333
+    }
+  ],
+  "animations": [
+    {
+      "name": "does_not_use",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "dropped",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "dropped_weapons/models/glock18/weapon_pist_glock18.vmdl_c",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "dropped_weapons/models/usp_silencer/weapon_pist_usp_silencer.vm",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_attach_weapons/models/usp_silencer/weapon_pist_usp_",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_detach_weapons/models/usp_silencer/weapon_pist_usp_",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_draw",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_draw_weapons/models/glock18/weapon_pist_glock18.vmd",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_draw_weapons/models/usp_silencer/weapon_pist_usp_si",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_idle",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_idle_weapons/models/glock18/weapon_pist_glock18.vmd",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_idle_weapons/models/usp_silencer/weapon_pist_usp_si",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_lookat01_end",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_lookat01_end_weapons/models/glock18/weapon_pist_glo",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_lookat01_end_weapons/models/usp_silencer/weapon_pis",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_lookat01_loop",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_lookat01_loop_weapons/models/glock18/weapon_pist_gl",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_lookat01_loop_weapons/models/usp_silencer/weapon_pi",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_lookat01_start",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_lookat01_start_weapons/models/glock18/weapon_pist_g",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_lookat01_start_weapons/models/usp_silencer/weapon_p",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_lookat01",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_lookat01_weapons/models/glock18/weapon_pist_glock18",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_lookat01_weapons/models/usp_silencer/weapon_pist_us",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_lookat02_end",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_lookat02_loop",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_lookat02_start",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_lookat02",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_lookat03_end",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_lookat03_loop",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_lookat03_start",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_lookat03",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_plantend",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_plantexit",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_plantstart",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_reload_weapons/models/glock18/weapon_pist_glock18.v",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_reload_weapons/models/usp_silencer/weapon_pist_usp_",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_shoot1_additive_weapons/models/glock18/weapon_pist_",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_shoot1_weapons/models/glock18/weapon_pist_glock18.v",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_shoot_empty_additive_weapons/models/glock18/weapon_",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_shoot_empty_weapons/models/glock18/weapon_pist_gloc",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_shoot_silenced_additive_weapons/models/usp_silencer",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "firstperson_shoot_unsilenced_additive_weapons/models/usp_silenc",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "holstered",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "holstered_weapons/models/glock18/weapon_pist_glock18.vmdl_c",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "holstered_weapons/models/usp_silencer/weapon_pist_usp_silencer.",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "inspect",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "inventory_icon",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "inventory_icon_weapons/models/glock18/weapon_pist_glock18.vmdl_",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "inventory_icon_weapons/models/usp_silencer/weapon_pist_usp_sile",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "inventory_inspect",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "inventory_inspect_weapons/models/glock18/weapon_pist_glock18.vm",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "inventory_inspect_weapons/models/usp_silencer/weapon_pist_usp_s",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "planted",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "sh_pstl_catch_weapons/models/glock18/weapon_pist_glock18.vmdl_c",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "sh_pstl_catch_weapons/models/usp_silencer/weapon_pist_usp_silen",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "sh_pstl_deploy_02_weapons/models/glock18/weapon_pist_glock18.vm",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "sh_pstl_deploy_02_weapons/models/usp_silencer/weapon_pist_usp_s",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "sh_pstl_deploy_03_weapons/models/glock18/weapon_pist_glock18.vm",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "sh_pstl_deploy_03_weapons/models/usp_silencer/weapon_pist_usp_s",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "sh_pstl_deploy_weapons/models/glock18/weapon_pist_glock18.vmdl_",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "sh_pstl_deploy_weapons/models/usp_silencer/weapon_pist_usp_sile",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "sh_pstl_fire_silenced_additive_weapons/models/usp_silencer/weap",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "sh_pstl_fire_unsilenced_additive_weapons/models/usp_silencer/we",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "sh_pstl_firing_weapons/models/glock18/weapon_pist_glock18.vmdl_",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "sh_pstl_stand_reload_weapons/models/glock18/weapon_pist_glock18",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "sh_pstl_stand_reload_weapons/models/usp_silencer/weapon_pist_us",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "sh_pstl_stand_silencer_off_weapons/models/usp_silencer/weapon_p",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "sh_pstl_stand_silencer_on_weapons/models/usp_silencer/weapon_pi",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "silencer_hidden_weapons/models/usp_silencer/weapon_pist_usp_sil",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "tools_preview",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "tools_preview_weapons/models/glock18/weapon_pist_glock18.vmdl_c",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    },
+    {
+      "name": "tools_preview_weapons/models/usp_silencer/weapon_pist_usp_silen",
+      "targetNodes": [
+        0
+      ],
+      "targetPaths": [
+        "rotation",
+        "scale",
+        "translation"
+      ]
+    }
+  ]
+}

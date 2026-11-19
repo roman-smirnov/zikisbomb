@@ -3,6 +3,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 const packages = [
   ['@babylonjs/core', ['license.md', 'NOTICE.md']],
   ['@babylonjs/loaders', ['license.md']],
+  ['@fontsource/barlow-condensed', ['LICENSE']],
   ['@fontsource/nunito', ['LICENSE']],
   ['@fontsource/jetbrains-mono', ['LICENSE']],
 ];

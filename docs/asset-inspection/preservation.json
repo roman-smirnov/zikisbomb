@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "checks": [
+    "all node transforms and hierarchy identical",
+    "mesh 0 primitive 0 POSITION bytes identical",
+    "mesh 0 primitive 0 NORMAL bytes identical",
+    "mesh 0 primitive 0 TEXCOORD_0 bytes identical",
+    "mesh 0 primitive 0 JOINTS_0 bytes identical",
+    "mesh 0 primitive 0 WEIGHTS_0 bytes identical",
+    "mesh 0 indices identical",
+    "mesh 1 primitive 0 POSITION bytes identical",
+    "mesh 1 primitive 0 NORMAL bytes identical",
+    "mesh 1 primitive 0 TEXCOORD_0 bytes identical",
+    "mesh 1 primitive 0 JOINTS_0 bytes identical",
+    "mesh 1 primitive 0 WEIGHTS_0 bytes identical",
+    "mesh 1 indices identical",
+    "skin joints and inverse bind matrices identical"
+  ],
+  "triangles": 17949,
+  "sourceAnimations": 73,
+  "preparedAnimations": 0
+}

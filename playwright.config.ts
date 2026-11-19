@@ -1,18 +1,2 @@
-import { defineConfig } from '@playwright/test';
-
-export default defineConfig({
-  testDir: './tests/browser',
-  timeout: 35_000,
-  workers: 1,
-  reporter: 'list',
-  use: {
-    baseURL: 'http://127.0.0.1:4198',
-    channel: 'chrome',
-    viewport: { width: 1280, height: 720 },
-    trace: 'retain-on-failure',
-  },
-  webServer: {
-    command: 'npm run preview -- --port 4198 --strictPort',
-    url: 'http://127.0.0.1:4198',
-  },
-});
+import {defineConfig} from '@playwright/test';
+export default defineConfig({testDir:'./tests/browser',timeout:100_000,fullyParallel:false,workers:1,reporter:[['list'],['json',{outputFile:'test-results/browser-results.json'}]],use:{baseURL:'http://127.0.0.1:4173',channel:'chrome',headless:true,viewport:{width:1920,height:1080},launchOptions:{args:['--autoplay-policy=no-user-gesture-required']},trace:'retain-on-failure'},webServer:{command:'npm run preview -- --port 4173',url:'http://127.0.0.1:4173',reuseExistingServer:!process.env.CI}});

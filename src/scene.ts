@@ -1,213 +1,188 @@
-import { Engine } from '@babylonjs/core/Engines/engine';
-import { Scene } from '@babylonjs/core/scene';
-import { Camera } from '@babylonjs/core/Cameras/camera';
-import { FreeCamera } from '@babylonjs/core/Cameras/freeCamera';
-import { Color3, Color4 } from '@babylonjs/core/Maths/math.color';
-import { Vector3 } from '@babylonjs/core/Maths/math.vector';
-import { DirectionalLight } from '@babylonjs/core/Lights/directionalLight';
-import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight';
-import { ShadowGenerator } from '@babylonjs/core/Lights/Shadows/shadowGenerator';
-import '@babylonjs/core/Lights/Shadows/shadowGeneratorSceneComponent';
-import { LoadAssetContainerAsync } from '@babylonjs/core/Loading/sceneLoader';
-import '@babylonjs/loaders/glTF/2.0/glTFLoader';
-import '@babylonjs/loaders/glTF/glTFFileLoader';
-import { Mesh } from '@babylonjs/core/Meshes/mesh';
-import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
-import type { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
-import type { MorphTarget } from '@babylonjs/core/Morph/morphTarget';
-import { buildDial, buildShady } from './actors.ts';
-import { assets, buildGarden } from './garden.ts';
-import type { Phase } from './game.ts';
+import { ShadyDevicePalette } from './devicePalette.ts';
+import { addGardenBench, createBenchTexture } from './gardenBench.ts';
+import { visualPulse } from './visualPulse.ts';
+import { SceneEffects } from './sceneEffects.ts';
+import { Engine } from '@babylonjs/core/Engines/engine.js';
+import { Scene } from '@babylonjs/core/scene.js';
+import { FreeCamera } from '@babylonjs/core/Cameras/freeCamera.js';
+import { Vector3, Quaternion, Matrix } from '@babylonjs/core/Maths/math.vector.js';
+import { Color3, Color4 } from '@babylonjs/core/Maths/math.color.js';
+import { TransformNode } from '@babylonjs/core/Meshes/transformNode.js';
+import { SceneLoader } from '@babylonjs/core/Loading/sceneLoader.js';
+import { Mesh } from '@babylonjs/core/Meshes/mesh.js';
+import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder.js';
+import { PBRMaterial } from '@babylonjs/core/Materials/PBR/pbrMaterial.js';
+import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial.js';
+import { Texture } from '@babylonjs/core/Materials/Textures/texture.js';
+import { CubeTexture } from '@babylonjs/core/Materials/Textures/cubeTexture.js';
+import { DirectionalLight } from '@babylonjs/core/Lights/directionalLight.js';
+import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight.js';
+import { PointLight } from '@babylonjs/core/Lights/pointLight.js';
+import { ShadowGenerator } from '@babylonjs/core/Lights/Shadows/shadowGenerator.js';
+import { DynamicTexture } from '@babylonjs/core/Materials/Textures/dynamicTexture.js';
+import { GlowLayer } from '@babylonjs/core/Layers/glowLayer.js';
+import { DefaultRenderingPipeline } from '@babylonjs/core/PostProcesses/RenderPipeline/Pipelines/defaultRenderingPipeline.js';
+import { ImageProcessingConfiguration } from '@babylonjs/core/Materials/imageProcessingConfiguration.js';
+import { SceneInstrumentation } from '@babylonjs/core/Instrumentation/sceneInstrumentation.js';
+import { EnvironmentTextureTools } from '@babylonjs/core/Misc/environmentTextureTools.js';
+import { HDRFiltering } from '@babylonjs/core/Materials/Textures/Filtering/hdrFiltering.js';
+import '@babylonjs/loaders/glTF';
+import { GameController, formatTime, type Effect } from './game.ts';
+import type { AudioEngine } from './audio.ts';
+const assets = `${import.meta.env.BASE_URL}assets/`;
+const C = (hex:string) => Color3.FromHexString(hex);
+export class GameScene {
+  readonly engine: Engine; readonly scene: Scene; readonly camera: FreeCamera; private instrumentation: SceneInstrumentation;
+  private root: TransformNode; private lcd?: DynamicTexture; private lcdMat?: StandardMaterial; private panel?: Mesh;
+  private sceneEffects: SceneEffects;
+  private glow: GlowLayer; private shadows: ShadowGenerator; private pipeline: DefaultRenderingPipeline;
+  private displayLight: PointLight; private led: Mesh; private ledMat: StandardMaterial; private keys = new Map<string,Mesh>(); private presses = new Map<string,number>();
+  private lastDisplay = ''; private frame?: () => void; private lastKey=-Infinity;
+  readonly quality = 'high';
+  private basePosition = new Vector3(.6,2.65,-1.85); private target = new Vector3(.6,0,0);
+  diagnostics: Record<string,unknown> = {};
+  constructor(canvas: HTMLCanvasElement, private game: GameController, private audio: AudioEngine) {
+    this.engine = new Engine(canvas,true,{stencil:true,preserveDrawingBuffer:true, powerPreference:'high-performance'});
+    this.engine.setHardwareScalingLevel(1/Math.min(devicePixelRatio,1.5)); this.scene = new Scene(this.engine); const scene = this.scene;
+    this.instrumentation=new SceneInstrumentation(scene);this.instrumentation.captureFrameTime=true;
+    scene.clearColor = new Color4(.70,.77,.51,1);
+    this.camera = new FreeCamera('Fixed classroom camera',this.basePosition.clone(),scene); this.camera.fov = .61; this.camera.minZ=.02; this.camera.maxZ=20; this.camera.setTarget(this.target); this.camera.inputs.clear();
+    const ip = scene.imageProcessingConfiguration; ip.toneMappingEnabled=true; ip.toneMappingType=ImageProcessingConfiguration.TONEMAPPING_ACES; ip.exposure=1.62; ip.contrast=1.05;
+    ip.vignetteEnabled=false;
+    scene.environmentTexture = location.search.includes('bake-environment') ? CubeTexture.CreateFromImages(['px','py','pz','nx','ny','nz'].map(x=>`${assets}textures/studio-${x}.png`),scene) : CubeTexture.CreateFromPrefilteredData(`${assets}textures/studio.env`,scene);
+    scene.environmentIntensity=.57;
+    const key = new DirectionalLight('Garden afternoon sun', new Vector3(.5, -1, .35), scene);
+    key.position = new Vector3(-1.3, 2, -1);
+    key.diffuse = C('#ffd5a3');
+    key.specular = C('#ecc59b');
+    key.intensity = 2.85;
+    key.autoCalcShadowZBounds = true;
+    key.shadowMinZ = .1;
+    key.shadowMaxZ = 6;
 
-type Graphics = 'loading' | 'ready' | 'fallback';
-type SceneView = Readonly<{ phase: Phase; paused: boolean; low: boolean; time: string; reduced: boolean }>;
-const direction = new Vector3(-.40, .94, -1.39).normalize();
-const right = Vector3.Cross(direction, Vector3.Up()).normalize();
-const up = Vector3.Cross(right, direction).normalize();
-
-export class GardenScene {
-  private engine: Engine;
-  private scene: Scene;
-  private camera: FreeCamera;
-  private garden: ReturnType<typeof buildGarden>;
-  private dial: ReturnType<typeof buildDial>;
-  private drone: TransformNode;
-  private shadows: ShadowGenerator;
-  private observer: ResizeObserver;
-  private abort = new AbortController();
-  private view: SceneView = { phase: 'ready', paused: false, low: false, time: '01:00', reduced: false };
-  private disposed = false;
-  private loaded = false;
-  private painted = false;
-  private lost = false;
-  private elapsed = 0;
-  private reactionAge = 0;
-  private rotors: TransformNode[] = [];
-  private eyes: { mesh: AbstractMesh; height: number }[] = [];
-  private brows: AbstractMesh[] = [];
-  private frown?: MorphTarget;
-
-  constructor(private canvas: HTMLCanvasElement, private focus: HTMLElement, private graphics: (status: Graphics) => void) {
-    if (!Engine.IsSupported) throw new Error('WebGL is unavailable.');
-    this.engine = new Engine(canvas, true, { alpha: true, stencil: false, premultipliedAlpha: true });
-    this.scene = new Scene(this.engine);
-    this.scene.clearColor = new Color4(0, 0, 0, 0);
-    this.scene.fogMode = Scene.FOGMODE_EXP2;
-    this.scene.fogColor = Color3.FromHexString('#f7e5c8');
-    this.scene.fogDensity = .006;
-    this.camera = new FreeCamera('Garden camera', Vector3.Zero(), this.scene);
-    this.camera.mode = Camera.ORTHOGRAPHIC_CAMERA;
-    this.camera.minZ = .15;
-    this.camera.maxZ = 100;
-
-    const sky = new HemisphericLight('Sky fill', new Vector3(.12, 1, -.32), this.scene);
-    sky.diffuse = Color3.FromHexString('#d7e8ff');
-    sky.groundColor = Color3.FromHexString('#a4b99b');
-    sky.intensity = .68;
-    const sun = new DirectionalLight('Afternoon sun', new Vector3(.49, -1, .45).normalize(), this.scene);
-    sun.diffuse = Color3.FromHexString('#ffe6bf');
-    sun.intensity = .83;
-    sun.position = new Vector3(3, 0, 3).subtract(sun.direction.scale(16));
-    sun.shadowFrustumSize = 19;
-    sun.shadowMinZ = 7;
-    sun.shadowMaxZ = 26;
-    this.shadows = new ShadowGenerator(1024, sun);
-    this.shadows.usePercentageCloserFiltering = true;
-    this.shadows.bias = .0014;
-    this.shadows.normalBias = .024;
-    this.shadows.darkness = .25;
-
-    this.garden = buildGarden(this.scene);
-    this.dial = buildDial(this.scene);
-    const shady = buildShady(this.scene);
-    for (const mesh of [...this.garden.shadowCasters, ...this.dial.meshes, ...shady.getChildMeshes()]) {
-      this.shadows.addShadowCaster(mesh, false);
+    const fill = new HemisphericLight('Afternoon sky fill', new Vector3(0, 1, 0), scene);
+    fill.diffuse = C('#d7e8ff');
+    fill.groundColor = C('#a4b99b');
+    fill.intensity = .54;
+    const rim = new PointLight('Soft garden bounce', new Vector3(.1, 1, 1), scene);
+    rim.diffuse = C('#badbc6');
+    rim.specular = C('#dbccae');
+    rim.intensity = .50;
+    rim.range = 3;
+    this.displayLight = new PointLight('LCD spill',new Vector3(0,.25,.1),scene); this.displayLight.diffuse=C('#ff281d'); this.displayLight.intensity=0; this.displayLight.range=.46;
+    this.displayLight.specular=Color3.Black();
+    this.shadows = new ShadowGenerator(2048, key);
+    this.shadows.useContactHardeningShadow = true;
+    this.shadows.contactHardeningLightSizeUVRatio = .028;
+    this.shadows.filteringQuality = ShadowGenerator.QUALITY_MEDIUM;
+    this.shadows.bias = .0001;
+    this.shadows.normalBias = .0009;
+    this.shadows.setDarkness(.17);
+    const wood = new PBRMaterial('Warm garden bench', scene);
+    wood.albedoTexture = createBenchTexture(scene);
+    wood.albedoColor = C('#dfc8af');
+    wood.roughness = .88;
+    wood.metallic = 0;
+    addGardenBench(scene, wood);
+    this.root = new TransformNode('BombRoot',scene);
+    this.glow = new GlowLayer('LCD and key glow',scene,{mainTextureRatio:.5,blurKernelSize:32}); this.glow.intensity=.2;
+    this.sceneEffects=new SceneEffects(scene,this.glow,game);this.sceneEffects.addSurface(wood);
+    this.led=MeshBuilder.CreateSphere('StatusLED',{diameter:.012,segments:8},scene);this.led.position.set(.20,.455,.04);this.ledMat=new StandardMaterial('Device status indicator',scene);this.ledMat.disableLighting=true;this.led.material=this.ledMat;this.glow.addIncludedOnlyMesh(this.led);
+    this.pipeline = new DefaultRenderingPipeline('One final image pipeline',true,scene,[this.camera]); this.pipeline.samples=1; this.pipeline.fxaaEnabled=true; this.pipeline.bloomEnabled=false;
+    window.addEventListener('resize',this.resize); document.addEventListener('fullscreenchange',this.resize);
+  }
+  async load(progress:(text:string)=>void) {
+    progress('DECODING DEVICE GEOMETRY');
+    const container = await SceneLoader.LoadAssetContainerAsync(`${assets}models/`,'c4-2k.glb',this.scene);
+    container.addAllToScene(); container.animationGroups.forEach(g=>g.dispose());
+    for (const node of container.rootNodes) node.parent=this.root;
+    for (const mesh of container.meshes) { mesh.computeWorldMatrix(true); if (mesh instanceof Mesh && mesh.getTotalVertices()) { mesh.refreshBoundingInfo({applySkeleton:true}); this.shadows.addShadowCaster(mesh); mesh.receiveShadows=true; } }
+    // Preserve conversion root, skeleton and source quaternion. Normalize only our parent adapter.
+    const body = container.meshes.find(m=>m.name.endsWith('body_hd')) as Mesh;
+    const p = container.meshes.find(m=>m.name.endsWith('controlpanel0')) as Mesh;
+    if(body?.material instanceof PBRMaterial) {
+      body.material.metallicReflectanceColor = C('#ead3bb');
+      body.material.environmentIntensity = .64;
+      if (body.material.bumpTexture) body.material.bumpTexture.level *= .54;
+      new ShadyDevicePalette(body.material);
     }
-    this.drone = new TransformNode('Ziki reaction pivot', this.scene);
-    this.drone.position.set(1.52, .86, 1.72);
-    this.drone.rotation.y = Math.PI + .22;
-    this.observer = new ResizeObserver(this.resize);
-    this.observer.observe(canvas);
-    this.observer.observe(focus);
-    this.engine.onContextLostObservable.add(() => {
-      this.lost = true;
-      this.painted = false;
-      this.graphics('fallback');
-      this.manageLoop();
+    if (!body || !p) throw new Error('Selected CS2 model is missing its body or LCD.');
+    const bounds = body.getBoundingInfo().boundingBox; const size = bounds.maximumWorld.subtract(bounds.minimumWorld); const center = bounds.centerWorld.clone();
+    this.diagnostics.sourceBounds={min:bounds.minimumWorld.asArray(),max:bounds.maximumWorld.asArray(),size:size.asArray()};
+    const scale=1.48/Math.max(size.x,size.y,size.z); this.root.rotation.y=.10; this.root.scaling.setAll(scale); this.root.position=center.scale(-scale);
+    this.root.computeWorldMatrix(true); body.computeWorldMatrix(true); body.refreshBoundingInfo({applySkeleton:true});
+    this.root.position.y -= body.getBoundingInfo().boundingBox.minimumWorld.y; this.root.position.y+=.008;
+    this.panel=p;
+    for(const material of new Set(container.meshes.map(m=>m.material))) {
+      if(material instanceof PBRMaterial)this.sceneEffects.addSurface(material);
+    }
+    // The supplied panel uses a small region of its test-grid UV atlas. Normalize its actual UV bounds.
+    const uv=p.getVerticesData('uv'); if (uv) { const us=uv.filter((_,i)=>i%2===0), vs=uv.filter((_,i)=>i%2===1); const u0=Math.min(...us), v0=Math.min(...vs), du=Math.max(...us)-u0, dv=Math.max(...vs)-v0; this.diagnostics.uv={u0,v0,du,dv}; p.setVerticesData('uv',uv.map((v,i)=>i%2===0?(v-u0)/du:(v-v0)/dv)); }
+    this.lcd=new DynamicTexture('Physical 512 x 128 countdown',{width:512,height:128},this.scene,false,Texture.BILINEAR_SAMPLINGMODE);
+    this.lcdMat=new StandardMaterial('Self-lit live LCD',this.scene); this.lcdMat.disableLighting=true; this.lcdMat.emissiveTexture=this.lcd; this.lcdMat.diffuseColor=Color3.Black(); this.lcdMat.emissiveColor=Color3.Black(); this.lcdMat.backFaceCulling=false;
+    const grid=p.material;p.material=this.lcdMat;grid?.dispose(false,true); this.glow.addIncludedOnlyMesh(p); this.glow.customEmissiveColorSelector=(mesh,_sub,_mat,color)=>{ if(mesh===p)color.set(1,1,1,1);else {const m=mesh.material as StandardMaterial; color.set(m.emissiveColor.r,m.emissiveColor.g,m.emissiveColor.b,m.alpha);} };
+    this.addKeyAnchors(new Vector3(-.1104,.460,-.0775),new Vector3(.103,0,-.01246),new Vector3(-.00592,0,-.09255),new Vector3(0,1,0));
+    progress('CALIBRATING LIVE DISPLAY');
+    this.drawLCD(formatTime(this.game.config.duration),false);
+    this.scene.render(); await this.scene.whenReadyAsync();
+    for(let i=0;i<5;i++) this.scene.render();
+    // Surface anchors are authored in the model's own post-skin coordinates after visual calibration.
+    this.diagnostics.meshes=container.meshes.map(m=>({name:m.name,position:m.getAbsolutePosition().asArray(),bounds:m.getBoundingInfo().boundingBox.extendSizeWorld.asArray()}));
+    this.diagnostics.triangles=container.meshes.reduce((n,m)=>n+m.getTotalIndices()/3,0);
+    this.diagnostics.engine=this.engine.webGLVersion; this.diagnostics.panelUV=p.getVerticesData('uv'); this.diagnostics.panelPositions=p.getPositionData(true,true); this.diagnostics.panelMatrix=p.getWorldMatrix().asArray(); this.diagnostics.lcdPixels=Array.from(this.lcd.getContext().getImageData(55,25,1,1).data);
+  }
+  /** Anchors use world coordinates from the retained rest pose; they never move the rig. */
+  addKeyAnchors(origin:Vector3,across:Vector3,down:Vector3,normal:Vector3) {
+    const layout=['1','2','3','4','5','6','7','8','9','Backspace','0','Enter'];
+    const rotation=Quaternion.FromRotationMatrix(Matrix.FromXYZAxesToRef(across.normalizeToNew(),down.normalizeToNew(),normal.normalizeToNew(),Matrix.Identity()));
+    layout.forEach((key,i)=> {
+      const mesh=MeshBuilder.CreatePlane(`KeyCue-${key}`,{width:across.length()*.7,height:down.length()*.7,sideOrientation:Mesh.DOUBLESIDE},this.scene);
+      mesh.position=origin.add(across.scale(i%3)).add(down.scale(Math.floor(i/3))).add(normal.scale(.002)); mesh.rotationQuaternion=rotation;
+      const mat=new StandardMaterial(`Cue-${key}`,this.scene); mat.disableLighting=true; mat.emissiveColor=C('#9af3de'); mat.alpha=0; mesh.material=mat; mesh.isPickable=false;
+      this.keys.set(key,mesh); this.glow.addIncludedOnlyMesh(mesh);
     });
-    this.engine.onContextRestoredObservable.add(() => {
-      this.lost = false;
-      this.resize();
-      this.manageLoop();
-    });
-    document.addEventListener('visibilitychange', this.manageLoop);
-    this.resize();
   }
-
-  async load() {
-    const [response] = await Promise.all([
-      fetch(assets + 'ziki.glb', { signal: this.abort.signal }),
-      this.garden.soilReady,
-    ]);
-    if (!response.ok) throw new Error('Ziki could not load.');
-    const bytes = new Uint8Array(await response.arrayBuffer());
-    if (this.disposed) return;
-    const container = await LoadAssetContainerAsync(bytes, this.scene, { pluginExtension: '.glb', name: 'ziki.glb' });
-    if (this.disposed) {
-      container.dispose();
-      return;
+  effects(events:Effect[]) { this.sceneEffects.effects(events); for(const event of events) { if(event.type==='key' && event.key) {this.presses.set(event.key,this.game.time());this.lastKey=this.game.time();} if(event.type==='reset'){this.presses.clear();this.lastKey=-Infinity;this.lastDisplay='';} } }
+  private drawLCD(text:string,green:boolean) {
+    if(!this.lcd)return; const ctx=this.lcd.getContext(); ctx.fillStyle=green?'#081e10':'#280604'; ctx.fillRect(0,0,512,128);
+    const segments:Record<string,number[]>={'0':[0,1,2,3,4,5],'1':[1,2],'2':[0,1,6,4,3],'3':[0,1,6,2,3],'4':[5,6,1,2],'5':[0,5,6,2,3],'6':[0,5,6,4,2,3],'7':[0,1,2],'8':[0,1,2,3,4,5,6],'9':[0,1,2,3,5,6]};
+    const bars=[[12,5,48,8],[60,12,8,43],[60,64,8,43],[12,109,48,8],[4,64,8,43],[4,12,8,43],[12,57,48,8]];
+    let x=40;
+    for(const ch of text) {
+      if(ch===':') {ctx.fillStyle=green?'#74ff99':'#ff5038';ctx.fillRect(x+5,37,9,9);ctx.fillRect(x+5,79,9,9);x+=32;continue;}
+      bars.forEach(([bx,by,w,h],i)=>{ctx.fillStyle=segments[ch]?.includes(i)?green?'#74ff99':'#ff5038':green?'#0d2916':'#3b0b07';ctx.fillRect(x+bx,by,w,h);});x+=92;
     }
-    container.addAllToScene();
-    for (const root of container.rootNodes) root.parent = this.drone;
-    this.rotors = container.transformNodes.filter(node => /^Rotor_\d$/.test(node.name));
-    this.eyes = container.meshes.filter(mesh => mesh.name.startsWith('Mint eye'))
-      .map(mesh => ({ mesh, height: mesh.scaling.y }));
-    this.brows = container.meshes.filter(mesh => mesh.name.startsWith('Sad brow'));
-    for (const mesh of container.meshes) {
-      if (mesh.name === 'Visor mouth' && mesh instanceof Mesh) this.frown = mesh.morphTargetManager?.getTargetByName('Frown') ?? undefined;
-      if (this.brows.includes(mesh)) mesh.setEnabled(false);
-      else if (mesh.getTotalVertices() > 0) {
-        mesh.receiveShadows = true;
-        this.shadows.addShadowCaster(mesh, false);
-      }
-    }
-    this.loaded = true;
-    this.manageLoop();
+    this.lcd.update(false);
   }
-
-  update(view: SceneView) {
-    if (this.view.phase !== view.phase) this.reactionAge = 0;
-    this.view = view;
+  update() {
+    this.sceneEffects.update();
+    this.camera.position.copyFrom(this.basePosition).addInPlace(this.sceneEffects.cameraOffset);
+    const s=this.game.state, now=this.game.time(); const green=s.phase==='success'; const text=formatTime(this.game.remaining); const signature=text+green;
+    if(signature!==this.lastDisplay) {this.lastDisplay=signature;this.drawLCD(text,green);}
+    this.displayLight.diffuse=green?C('#39f57d'):C('#ff281d');this.displayLight.intensity=green?.52:0;const pulse=Math.max(visualPulse(now,this.audio.lastBeep,100),visualPulse(now,this.lastKey,100));this.ledMat.emissiveColor=(green?C('#39f57d'):C('#ff281d')).scale(green?1:pulse);
+    if(this.panel) {this.panel.computeWorldMatrix(true); this.panel.refreshBoundingInfo({applySkeleton:true}); this.displayLight.position=this.panel.getBoundingInfo().boundingBox.centerWorld.add(new Vector3(0,.07,0));}
+    for(const [key,mesh] of this.keys) {(mesh.material as StandardMaterial).alpha=.5*visualPulse(now,this.presses.get(key)??-Infinity,130);}
+    // LED envelope follows the scheduler's actual game timestamp.
+    this.glow.intensity=green?.15:.18+visualPulse(now,this.audio.lastBeep,100)*.08;
   }
-
-  private resize = () => {
-    if (this.disposed || this.lost) return;
-    this.engine.setHardwareScalingLevel(1 / Math.min(devicePixelRatio || 1, 1.75));
+  start(frame:()=>void) { this.frame=frame; this.wake(); }
+  wake(){if(this.frame)this.engine.runRenderLoop(this.frame);}
+  sleep(){if(this.frame)this.engine.stopRenderLoop(this.frame);}
+  resize=()=> {
+    const ratio=innerWidth/innerHeight;
+    this.camera.fov=ratio<1.3?.85:.61;
+    this.engine.setHardwareScalingLevel(1/Math.min(devicePixelRatio,1.5));
     this.engine.resize();
-    const canvas = this.canvas.getBoundingClientRect();
-    const focus = this.focus.getBoundingClientRect();
-    if (focus.width < 1 || focus.height < 1 || canvas.width < 1 || canvas.height < 1) return;
-
-    // Frame the garden in the open area while the full-width canvas extends behind the controls.
-    const corners = this.garden.bounds.concat(new Vector3(1.75, 1.64, 7.15), new Vector3(4.45, 1.63, 7.25));
-    const xs = corners.map(point => Vector3.Dot(point, right));
-    const ys = corners.map(point => Vector3.Dot(point, up));
-    const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
-    const size = Math.max((maxX - minX + .65) / focus.width, (maxY - minY + .48) / focus.height);
-    const offsetX = canvas.width / 2 - (focus.left - canvas.left + focus.width / 2);
-    const offsetY = focus.top - canvas.top + focus.height / 2 - canvas.height / 2;
-    const center = right.scale((minX + maxX) / 2 + size * offsetX).add(up.scale((minY + maxY) / 2 + size * offsetY));
-    this.camera.position.copyFrom(center.add(direction.scale(37)));
-    this.camera.setTarget(center);
-    this.camera.orthoLeft = -canvas.width * size / 2;
-    this.camera.orthoRight = canvas.width * size / 2;
-    this.camera.orthoTop = canvas.height * size / 2;
-    this.camera.orthoBottom = -this.camera.orthoTop;
-    this.garden.fadeMeadow(up, center, this.camera.orthoTop);
+    // Static off-axis framing shifts the device left without scaling or moving its parts.
+    // Ease out the offset on narrow projectors so the left edge stays in frame.
+    const shift=.03*Math.max(0,Math.min(1,(ratio-1.4)/.3));
+    this.camera.unfreezeProjectionMatrix();
+    const projection=this.camera.getProjectionMatrix(true).clone();
+    projection.addAtIndex(8,-2*shift);
+    this.camera.freezeProjectionMatrix(projection);
+    this.wake();
   };
-
-  private manageLoop = () => {
-    if (this.disposed || this.lost || document.hidden || !this.loaded) {
-      this.engine.stopRenderLoop(this.render);
-    } else {
-      this.engine.runRenderLoop(this.render);
-    }
-  };
-
-  private render = () => {
-    const view = this.view;
-    const dt = Math.min(.05, this.engine.getDeltaTime() / 1000);
-    if (!view.paused && !view.reduced) {
-      this.elapsed += dt;
-      this.reactionAge += dt;
-      for (const [index, rotor] of this.rotors.entries()) {
-        rotor.rotationQuaternion = null;
-        rotor.rotation.y += dt * (index % 2 ? -7 : 7);
-      }
-    }
-    const relieved = view.phase === 'success';
-    const concerned = view.phase === 'expired';
-    const bob = view.reduced ? 0 : .037 * Math.sin(this.elapsed * 4);
-    const lift = relieved && !view.reduced ? Math.max(0, Math.sin(Math.min(Math.PI, this.reactionAge * 3.5))) * .17 : 0;
-    this.drone.position.y = .86 + bob + lift - (concerned ? .11 : 0);
-    this.drone.rotation.z = concerned && !view.reduced ? -.09 : 0;
-    for (const { mesh, height } of this.eyes) mesh.scaling.y = height * (concerned ? .65 : relieved ? 1.18 : 1);
-    for (const brow of this.brows) brow.setEnabled(concerned);
-    if (this.frown) this.frown.influence = Number(concerned);
-    this.dial.show(relieved || concerned || view.phase === 'ready' ? '' : view.time, view.low);
-    this.scene.render();
-    if (!this.painted && this.scene.isReady()) {
-      this.painted = true;
-      this.graphics('ready');
-    }
-  };
-
-  dispose() {
-    if (this.disposed) return;
-    this.disposed = true;
-    this.abort.abort();
-    this.observer.disconnect();
-    document.removeEventListener('visibilitychange', this.manageLoop);
-    this.engine.dispose();
-  }
+  async bakeEnvironment(){const texture=this.scene.environmentTexture as CubeTexture;await new HDRFiltering(this.engine,{quality:64}).prefilter(texture);return EnvironmentTextureTools.CreateEnvTextureAsync(texture,{imageType:'image/png'});}
+  stats() {return {...this.diagnostics,effects:this.sceneEffects.stats(),fps:this.engine.getFps(),drawCalls:this.instrumentation.drawCallsCounter.current,frameMs:this.instrumentation.frameTimeCounter.current,meshes:this.scene.meshes.length,textures:this.scene.textures.length,quality:this.quality,exposure:this.scene.imageProcessingConfiguration.exposure,renderScale:1/this.engine.getHardwareScalingLevel(),glowIntensity:this.glow.intensity,displayLightIntensity:this.displayLight.intensity,ledEmission:this.ledMat.emissiveColor.asArray(),lcdText:this.lastDisplay,keyCues:[...this.keys].filter(([,m])=>(m.material as StandardMaterial).alpha>0).map(([k])=>k)};}
+  dispose(){if(this.frame)this.engine.stopRenderLoop(this.frame);window.removeEventListener('resize',this.resize);document.removeEventListener('fullscreenchange',this.resize);this.instrumentation.dispose();this.scene.dispose();this.engine.dispose();}
 }

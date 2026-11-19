@@ -1,123 +1,36 @@
-import test from 'node:test';
+import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import { complete, editable, formatTime, GameController, remaining } from '../src/game.ts';
-import { puzzles } from '../src/puzzles.ts';
+import {GameController,transition,initial,defaults,remaining,formatTime,keyEdit,editable,complete,failureVisual,validateConfig} from '../src/game.ts';
+function fixture(){let now=0;const game=new GameController(()=>now,defaults,()=>0);const effects=[];game.onEffects=e=>effects.push(...e);return{game,effects,advance(ms){now+=ms;game.sample();},set(ms){now=ms;}};}
+function playing(){const f=fixture();f.game.dispatch({type:'start'});f.advance(2000);return f;}
+test('intro starts a fresh full countdown even after a stalled frame',()=>{const f=fixture();f.game.dispatch({type:'start'});f.advance(9000);assert.equal(f.game.state.phase,'playing');assert.equal(f.game.remaining,60000);});
+test('deadline derives from elapsed time and LCD uses ceiling',()=>{const f=playing();f.advance(1001);assert.equal(f.game.remaining,58999);assert.equal(formatTime(f.game.remaining),'00:59');f.advance(58999);assert.equal(f.game.state.phase,'failureTransition');assert.equal(f.effects.filter(e=>e.type==='failure').length,1);f.advance(100);assert.equal(f.effects.filter(e=>e.type==='failure').length,1);});
+test('correct answer before deadline freezes exact time',()=>{const f=playing();f.advance(59999);f.game.dispatch({type:'edit',value:'06'});f.game.dispatch({type:'submit'});assert.equal(f.game.state.phase,'success');assert.equal(f.game.remaining,1);f.advance(10000);assert.equal(f.game.remaining,1);assert.equal(f.effects.filter(e=>e.type==='success').length,1);});
+test('expiry has priority at exact deadline, even without a render sample',()=>{const f=playing();f.game.dispatch({type:'edit',value:'6'});f.set(62000);f.game.dispatch({type:'submit'});assert.equal(f.game.state.phase,'failureTransition');assert.equal(f.effects.filter(e=>e.type==='success').length,0);});
+test('wrong answer is atomic: ten seconds, cleared entry, locked for 800ms',()=>{const f=playing();f.game.dispatch({type:'edit',value:'7'});f.game.dispatch({type:'submit'});assert.equal(f.game.remaining,50000);assert.equal(f.game.state.answer,'');assert.equal(f.game.state.phase,'incorrectFeedback');for(let i=0;i<20;i++)f.game.dispatch({type:'submit'});f.game.dispatch({type:'edit',value:'6'});assert.equal(f.game.remaining,50000);assert.equal(f.game.state.answer,'');f.advance(799);assert.equal(f.game.state.phase,'incorrectFeedback');f.advance(1);assert.equal(f.game.state.phase,'playing');assert.equal(f.game.remaining,49200);});
+test('fatal penalty bypasses rejection phase and begins one failure',()=>{const f=playing();f.advance(50000);f.game.dispatch({type:'edit',value:'-1'});f.game.dispatch({type:'submit'});assert.equal(f.game.state.phase,'failureTransition');assert.equal(f.effects.filter(e=>e.type==='failure').length,1);assert.equal(f.effects.filter(e=>e.type==='denied').length,0);});
+test('empty and lone minus have no penalty',()=>{const f=playing();for(const value of['','-']){f.game.dispatch({type:'edit',value});f.game.dispatch({type:'submit'});}assert.equal(f.game.remaining,60000);assert.equal(f.game.state.phase,'playing');});
+test('strict whole string and six digits; numeric normalization',()=>{for(const s of ['6.0junk','6junk','1e2','--2',' 6','6\n','１２','1234567','+6']){assert.equal(editable(s),false,s);assert.equal(complete(s),false,s);}assert.ok(editable('-123456'));assert.ok(complete('-000006'));});
+test('keyboard ignores repeated digits/minus, repeats backspace, limits length',()=>{assert.equal(keyEdit('','6',true),null);assert.equal(keyEdit('','-',true),null);assert.equal(keyEdit('12','Backspace',true),'1');assert.equal(keyEdit('123456','7'),null);assert.equal(keyEdit('','-'),'-');assert.equal(keyEdit('-','-'),null);assert.equal(keyEdit('','.'),'.');assert.equal(keyEdit('3.','.'),null);assert.equal(keyEdit('3','.',true),null);});
+test('pause freezes the sole active clock; resume does not double compensate',()=>{const f=playing();f.advance(1000);f.game.dispatch({type:'pause'},'focus');const t=f.game.time();f.advance(80000);assert.equal(f.game.time(),t);assert.equal(f.game.remaining,59000);f.game.dispatch({type:'edit',value:'6'});assert.equal(f.game.state.answer,'');f.game.dispatch({type:'resume'});f.advance(1500);assert.equal(f.game.remaining,57500);});
+test('failure has full four-second timeline and explicit reveal only',()=>{const f=playing();f.advance(60000);f.game.dispatch({type:'reveal'});assert.equal(f.game.state.phase,'failureTransition');f.advance(2799);assert.equal(failureVisual(f.game.time()-f.game.state.entered).silent,false);f.advance(1);assert.equal(failureVisual(f.game.time()-f.game.state.entered).silent,true);f.advance(500);assert.equal(f.game.state.phase,'failureTransition');assert.equal(failureVisual(3300).title,0);f.advance(700);assert.equal(f.game.state.phase,'missionFailed');f.advance(60000);assert.equal(f.game.state.phase,'missionFailed');f.game.dispatch({type:'reveal'});assert.equal(f.game.state.phase,'educationalReveal');});
+test('failure pause preserves blackout and cutoff progress',()=>{const f=playing();f.advance(60000);f.advance(2700);f.game.dispatch({type:'pause'});f.advance(10000);assert.equal(f.game.time()-f.game.state.entered,2700);f.game.dispatch({type:'resume'});f.advance(100);assert.ok(failureVisual(f.game.time()-f.game.state.entered).silent);});
+test('rematch invalidates run, answer, deadline, pause and reveal',()=>{const f=playing();const id=f.game.state.runId;f.advance(60000);f.advance(4000);f.game.dispatch({type:'reveal'});f.game.dispatch({type:'start'});assert.equal(f.game.state.runId,id+1);assert.equal(f.game.state.phase,'intro');assert.equal(f.game.state.answer,'');assert.equal(f.game.remaining,60000);assert.equal(f.game.state.deadline,null);f.advance(2000);assert.equal(f.game.remaining,60000);f.game.dispatch({type:'title'});assert.equal(f.game.state.phase,'ready');});
+test('pure transition does not mutate previous state; event IDs are monotonic per run',()=>{const s=Object.freeze({...initial(),phase:'playing',deadline:60000});const a=transition(s,{type:'edit',value:'9'},1000);const b=transition(a.state,{type:'submit'},1000);assert.equal(s.answer,'');assert.ok(b.state.eventId>a.state.eventId);assert.equal(remaining(b.state,1000),49000);assert.equal(s.puzzle.expected,6);});
+test('failure picture is fully black before cutoff and title waits for silence',()=>{assert.equal(failureVisual(400).black,0);assert.equal(failureVisual(2600).black,1);assert.equal(failureVisual(2800).title,0);assert.equal(failureVisual(3299).title,0);assert.equal(failureVisual(4000).title,1);});
 
-function round(id = 'R2') {
-  let now = 0;
-  const game = new GameController(() => now);
-  const puzzle = puzzles.find(item => item.id === id);
-  game.apply({ type: 'start', puzzle });
-  return {
-    game,
-    at: value => { now = value; },
-    enter: value => game.apply({ type: 'edit', value }),
-    submit: () => game.apply({ type: 'submit' }),
-    remaining: () => remaining(game.state, now),
-  };
-}
+test('configuration accepts alternate round duration and rejects broken clock contracts',()=>{const config=validateConfig({...defaults,duration:120000,penalty:5000});let t=0;const g=new GameController(()=>t,config);g.dispatch({type:'start'});t=2000;g.sample();assert.equal(g.remaining,120000);for(const patch of [{duration:NaN},{duration:-1},{penalty:Infinity},{failure:3000}])assert.throws(()=>validateConfig({...defaults,...patch}));});
 
-test('starts immediately at a full 01:00, independent of sampling', () => {
-  const run = round();
-  assert.equal(run.game.state.phase, 'playing');
-  assert.equal(formatTime(run.remaining()), '01:00');
-  run.at(1_001);
-  assert.equal(formatTime(run.remaining()), '00:59');
+
+test('decimals are editable and complete only when numeric, with the same digit budget',()=>{
+ for(const value of ['3.5','-3.5','.5','-.5','6.0','6.','123.456','-123.456']){assert.ok(editable(value),value);assert.ok(complete(value),value);}
+ for(const value of ['','-','.','-.']){assert.ok(editable(value),value);assert.equal(complete(value),false,value);}
+ for(const value of ['3..5','3.5x','3,5','1e2','123.4567']){assert.equal(editable(value),false,value);assert.equal(complete(value),false,value);}
 });
-
-test('expiry wins at the exact deadline even for a correct answer', () => {
-  const run = round();
-  run.enter('4.7');
-  run.at(60_000);
-  const result = run.submit();
-  assert.equal(result.phase, 'expired');
-  assert.equal(result.frozenRemaining, 0);
-  assert.equal(result.revealed, false);
+test('decimal wrong answers are rejected normally and numerically equal output succeeds',()=>{
+ const f=playing();f.game.dispatch({type:'edit',value:'3.5'});assert.equal(f.game.state.answer,'3.5');f.game.dispatch({type:'submit'});assert.equal(f.game.state.phase,'incorrectFeedback');assert.equal(f.game.remaining,50000);assert.equal(f.game.state.answer,'');f.advance(800);f.game.dispatch({type:'edit',value:'6.0'});f.game.dispatch({type:'submit'});assert.equal(f.game.state.phase,'success');
 });
-
-test('correct decimal with comma and trailing zero freezes remaining time', () => {
-  const run = round();
-  run.enter('4,70');
-  assert.equal(run.game.state.answer, '4.70');
-  run.at(51_047);
-  assert.equal(run.submit().phase, 'success');
-  run.at(73_000);
-  assert.equal(run.remaining(), 8_953);
-  assert.equal(run.game.state.revealed, false);
-  assert.equal(run.game.apply({ type: 'reveal' }).revealed, true);
-});
-
-test('rejects a wrong answer once, clears it, and releases the retry gate', () => {
-  const run = round('X2');
-  run.enter('3');
-  run.at(1_000);
-  assert.equal(run.submit().phase, 'retry');
-  assert.equal(run.game.state.answer, '');
-  assert.equal(run.remaining(), 49_000);
-  run.enter('-3');
-  assert.equal(run.game.state.answer, '');
-  run.submit();
-  assert.equal(run.remaining(), 49_000);
-  run.at(1_800);
-  run.enter('-3');
-  assert.equal(run.submit().phase, 'success');
-});
-
-test('a fatal penalty reveals expiry immediately', () => {
-  const run = round();
-  run.at(52_000);
-  run.enter('14');
-  assert.equal(run.submit().phase, 'expired');
-  assert.equal(run.remaining(), 0);
-});
-
-test('pause holds the remaining time and retry gate until resume', () => {
-  const run = round();
-  run.enter('14');
-  run.at(1_000);
-  run.submit();
-  run.at(1_200);
-  run.game.apply({ type: 'pause' });
-  run.at(80_000);
-  run.game.apply({ type: 'sample' });
-  assert.equal(run.remaining(), 48_800);
-  assert.equal(run.game.state.phase, 'retry');
-  run.game.apply({ type: 'resume' });
-  run.at(80_599);
-  assert.equal(run.game.apply({ type: 'sample' }).phase, 'retry');
-  run.at(80_600);
-  assert.equal(run.game.apply({ type: 'sample' }).phase, 'playing');
-  assert.equal(run.remaining(), 48_200);
-});
-
-test('incomplete input has no time penalty and invalid whole strings cannot edit', () => {
-  const run = round();
-  for (const value of ['', '-', '.', '-.']) {
-    assert.ok(editable(value));
-    assert.ok(!complete(value));
-    run.enter(value);
-    assert.ok(run.submit().incomplete);
-    assert.equal(run.remaining(), 60_000);
-  }
-  run.enter('-.25');
-  assert.equal(run.game.state.answer, '-.25');
-  for (const value of ['1e2', '4 7', '4.7.0', '+4', '1234567', '4.70 #']) {
-    run.enter(value);
-    assert.equal(run.game.state.answer, '-.25');
-  }
-  assert.ok(complete('123456.'));
-});
-
-test('start and end clear stale state while reveal works only after the round', () => {
-  const run = round();
-  assert.equal(run.game.apply({ type: 'reveal' }).revealed, false);
-  run.enter('4.7');
-  run.submit();
-  run.game.apply({ type: 'reveal' });
-  const next = run.game.start('Min');
-  assert.equal(next.puzzle.topic, 'Min');
-  assert.equal(next.revealed, false);
-  assert.equal(next.answer, '');
-  assert.equal(run.game.apply({ type: 'end' }).puzzle, undefined);
-  assert.equal(run.game.state.phase, 'ready');
+test('unfinished decimals have no penalty and decimal separator can be removed',()=>{
+ const f=playing();for(const value of ['.','-.']){f.game.dispatch({type:'edit',value});f.game.dispatch({type:'submit'});assert.equal(f.game.state.phase,'playing');assert.equal(f.game.remaining,60000);}
+ assert.equal(keyEdit('3.5','Backspace'),'3.');assert.equal(keyEdit('3.','Backspace'),'3');
 });

@@ -1,99 +1,15 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#17242d">
-  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-  <title>Ziki’s Bomb</title>
-</head>
-<body>
-  <main class="stage">
-    <div class="world" id="world" data-graphics="loading">
-      <div class="terrain" aria-hidden="true">
-        <div class="garden-still"></div>
-        <canvas id="scene"></canvas>
-      </div>
-      <div id="scene-focus" aria-hidden="true"></div>
-      <div class="utilities" role="group" aria-label="Game controls">
-        <button id="sound" type="button" aria-pressed="false"><span aria-hidden="true">♫</span> <span id="sound-label">Sound off</span></button>
-        <button id="fullscreen" type="button" aria-label="Fullscreen" title="Fullscreen"><span aria-hidden="true">⛶</span></button>
-        <button id="pause" type="button" hidden>Pause</button>
-        <button id="teacher" type="button" aria-haspopup="dialog">Teacher controls</button>
-      </div>
-    </div>
-
-    <section class="console" aria-labelledby="game-title">
-      <header class="console-header">
-        <h1 id="game-title">Ziki’s Bomb</h1>
-        <div class="clock" id="clock" hidden>
-          <span class="sr-only">Time remaining</span>
-          <span id="time" role="timer" aria-live="off">01:00</span>
-        </div>
-      </header>
-
-      <section class="panel" id="ready" aria-label="Round setup">
-        <p class="setup-intro">Predict what a C# expression prints before time runs out.</p>
-        <div class="setup-row">
-          <label>Topic <select id="topic"></select></label>
-          <button class="primary" id="start" type="button"><span aria-hidden="true">▶</span> Start round</button>
-        </div>
-      </section>
-
-      <section id="round" hidden>
-        <div class="code-panel">
-          <h2><span aria-hidden="true">&lt;/&gt;</span> What will this code print?</h2>
-          <pre dir="ltr"><code id="challenge"></code></pre>
-        </div>
-
-        <form id="answer-form" novalidate>
-          <label for="answer">Answer</label>
-          <div class="answer-row">
-            <input id="answer" type="text" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="feedback">
-            <button class="primary" id="submit" type="submit">Submit</button>
-          </div>
-          <div class="touch-keys" aria-label="Answer keys" role="group">
-            <button type="button" data-key="-" aria-label="Enter minus">−</button>
-            <button type="button" data-key="." aria-label="Enter decimal point">.</button>
-          </div>
-          <p class="feedback" id="feedback" hidden></p>
-        </form>
-
-        <div class="round-pause" id="paused" hidden>
-          <p>Round paused</p>
-          <button class="primary" id="resume" type="button">Resume</button>
-        </div>
-
-        <section class="result" id="result" aria-labelledby="result-title" hidden>
-          <h2 id="result-title" tabindex="-1"></h2>
-          <div class="solution" id="solution" hidden></div>
-          <div class="result-actions">
-            <button id="reveal" type="button">Show solution</button>
-            <button class="primary" id="next" type="button">Next round</button>
-            <button id="end" type="button">End round</button>
-          </div>
-        </section>
-      </section>
-      <p class="feedback" id="notice" hidden></p>
-    </section>
-  </main>
-
-  <dialog id="teacher-dialog" aria-labelledby="teacher-title">
-    <form method="dialog" class="dialog-header">
-      <h2 id="teacher-title">Teacher controls</h2>
-      <button type="submit" autofocus>Close</button>
-    </form>
-    <label class="volume">Volume <input type="range" id="volume" min="0" max="1" step=".05" value=".35"></label>
-    <p class="teacher-note">Pause the round while the class discusses an answer. After each round, use Show solution to review the expression together.</p>
-    <dl class="shortcuts">
-      <dt>Enter</dt><dd>Start, resume, or submit</dd>
-      <dt>Shift P</dt><dd>Pause or resume</dd>
-      <dt>F / M / T</dt><dd>Fullscreen, sound, or teacher controls</dd>
-      <dt>R / Shift R</dt><dd>Show solution or start the next round</dd>
-    </dl>
-    <button type="button" id="teacher-end">End round</button>
-  </dialog>
-  <p id="announcement" class="sr-only" role="status"></p>
-  <script type="module" src="/src/main.ts"></script>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="/favicon.svg"><meta name="theme-color" content="#17242d"><meta name="description" content="ZIKI’S BOMB — defuse the bomb by solving a C# coding challenge."><title>ZIKI’S BOMB — DEFUSE THE BOMB</title></head><body class="projector">
+<canvas id="scene" aria-label="Countdown device on a garden bench"></canvas><div class="scene-shade"></div>
+<main>
+<section id="loading" class="cover"><div class="eyebrow">ZIKI’S BOMB // INITIALIZING</div><div class="loading-line"></div><p id="load-message">PREPARING DEVICE</p><button id="retry" hidden>RETRY CONNECTION</button></section>
+<section id="ready" class="title-card" hidden><h1>ZIKI’S BOMB</h1><div class="subtitle">DEFUSE THE BOMB</div><button id="start" class="primary">START GAME</button><p id="audio-error" role="status" hidden></p><button id="muted-start" hidden>CONTINUE MUTED</button></section>
+<section id="hud" aria-label="Defusal challenge" hidden><div id="device-status" class="armed"><span class="dot"></span> DEVICE ARMED</div><div class="rule"></div><h2>WHAT WILL THIS C# CODE PRINT?</h2><pre class="code-strip"><code id="challenge-code"></code></pre><label class="answer-label" for="answer">CODE OUTPUT: <span class="answer-entry"><input id="answer" type="text" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="8" aria-label="Defusal code" placeholder=" "><span class="blinking-underscore" aria-hidden="true">_</span></span></label><div id="feedback" role="status" aria-live="polite"></div><span id="accessible-timer" class="sr-only"></span></section>
+<section id="success" class="outcome success-card" hidden><div class="eyebrow">PROTOCOL COMPLETE</div><h2>DEVICE<br>DEFUSED<span>.</span></h2><p>Signal accepted. Clock stopped.</p><div class="actions"><button data-action="rematch" class="primary">RESTART GAME</button><button data-action="title">END GAME</button></div></section>
+</main>
+<div id="blackout" aria-hidden="true"></div>
+<section id="failure" class="failure-card" hidden><h2>MISSION FAILED</h2><div id="failure-actions" class="actions" hidden><button id="reveal">SHOW ANSWER</button><button data-action="rematch">RESTART GAME</button><button data-action="title">END GAME</button></div></section>
+<section id="reveal-card" class="reveal-card" hidden></section>
+<div id="pause" class="pause-cover" hidden><div class="pause-card"><div class="eyebrow">CLOCK SUSPENDED</div><h2>GAME PAUSED</h2><p id="pause-reason">Resume when ready</p><button id="resume" class="primary">RESUME GAME</button></div></div>
+<footer><div class="utility"><button id="pause-button" hidden aria-label="Pause game">Ⅱ <span>PAUSE</span></button><button id="mute" aria-label="Mute audio">♪ <span>AUDIO ON</span></button><button id="fullscreen" aria-label="Toggle fullscreen">⛶ <span>FULLSCREEN</span></button><button id="menu-button" aria-label="Teacher controls" aria-expanded="false">☷ <span>CONTROLS</span></button></div></footer>
+<aside id="teacher-menu" hidden aria-label="Teacher controls"><div class="menu-top"><span class="eyebrow">TEACHER CONTROLS</span><button id="close-menu" aria-label="Close controls">×</button></div><label>MASTER VOLUME <input id="volume" type="range" min="0" max="1" step="0.01" value="0.35"></label><div class="menu-actions"><button data-action="rematch">RESTART GAME</button><button data-action="title">END GAME</button></div><p class="shortcuts">Shift P — pause / resume<br>F — fullscreen · M — mute · T — controls<br>R — show answer · Shift R — restart game<br>Digits / − / Backspace / Enter</p></aside>
+<div id="announcement" class="sr-only" role="status" aria-live="polite"></div><script type="module" src="/src/main.ts"></script></body></html>

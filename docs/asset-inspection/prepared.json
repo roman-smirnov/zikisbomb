@@ -1,0 +1,32 @@
+{
+  "sourceSHA256": "ae773cd02b2e52a7ff236f1ddef808204c134cc665dbbdbd2eb6244b4b10566e",
+  "preparedSHA256": "5b78477879c1655ea28709e8798860111740181a5c4b9d9119a19f8be3c2a213",
+  "sourceBytes": 44077888,
+  "preparedBytes": 11817032,
+  "geometry": "unchanged",
+  "skinAndTransforms": "unchanged",
+  "animations": 0,
+  "textureLimit": 2048,
+  "textures": [
+    {
+      "name": "c4_normal_tga_4e48d437",
+      "width": 2048,
+      "height": 2048
+    },
+    {
+      "name": "c4_ao_tga_bb64a00d_orm_556045838",
+      "width": 2048,
+      "height": 2048
+    },
+    {
+      "name": "c4_color_psd_75da6dec",
+      "width": 2048,
+      "height": 2048
+    },
+    {
+      "name": "testgrid_color_tga_6cdaf30d",
+      "width": 512,
+      "height": 512
+    }
+  ]
+}
